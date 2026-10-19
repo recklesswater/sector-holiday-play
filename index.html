@@ -41,8 +41,8 @@
     </main>
     <iframe id="game" title="星区假日大亨" allow="autoplay"></iframe>
     <script>
-      const salt = "tZsyPtwaZaWtsc7lsu2jXA==";
-      const iv = "tMRnrWxY/58NjCRP";
+      const salt = "PQUJf83RmAkmmrgGsIctsQ==";
+      const iv = "1bAethKBcQ5t3S0I";
       const iterations = 100000;
       const input = document.getElementById('password');
       const button = document.getElementById('unlock');
@@ -82,7 +82,9 @@
               key,
               combined,
             );
-            self.postMessage({ ok: true, plain }, [plain]);
+            const stream = new Blob([plain]).stream().pipeThrough(new DecompressionStream('gzip'));
+            const html = await new Response(stream).text();
+            self.postMessage({ ok: true, html });
           } catch (error) {
             self.postMessage({ ok: false, error: String(error) });
           }
@@ -93,9 +95,25 @@
         button.disabled = true;
         status.textContent = '正在后台解密，请稍候…';
         try {
-          const payload = await fetch('./payload.bin', { cache: 'force-cache' }).then((response) => {
-            if (!response.ok) throw new Error('payload unavailable');
-            return response.arrayBuffer();
+          const payload = await new Promise((resolve, reject) => {
+            const request = new XMLHttpRequest();
+            request.open('GET', './payload.bin');
+            request.responseType = 'arraybuffer';
+            request.onprogress = (event) => {
+              if (event.lengthComputable) {
+                const percent = Math.min(100, Math.round(event.loaded / event.total * 100));
+                status.textContent = `正在下载加密资源 ${percent}%…`;
+              }
+            };
+            request.onload = () => {
+              if (request.status >= 200 && request.status < 300) {
+                resolve(request.response);
+              } else {
+                reject(new Error('payload unavailable'));
+              }
+            };
+            request.onerror = () => reject(new Error('payload unavailable'));
+            request.send();
           });
           const worker = new Worker(URL.createObjectURL(new Blob([workerSource], { type: 'text/javascript' })));
           worker.onmessage = (event) => {
@@ -108,7 +126,7 @@
             }
             status.textContent = '正在启动星区…';
             requestAnimationFrame(() => {
-              frame.srcdoc = new TextDecoder().decode(event.data.plain);
+              frame.srcdoc = event.data.html;
               document.getElementById('gate').style.display = 'none';
               frame.style.display = 'block';
             });
