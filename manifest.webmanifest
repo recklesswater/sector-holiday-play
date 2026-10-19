@@ -1,0 +1,18 @@
+{
+  "name": "星区假日大亨",
+  "short_name": "假日大亨",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#07040f",
+  "theme_color": "#07040f",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
