@@ -41,8 +41,8 @@
     </main>
     <iframe id="game" title="星区假日大亨" allow="autoplay"></iframe>
     <script>
-      const salt = "PQUJf83RmAkmmrgGsIctsQ==";
-      const iv = "1bAethKBcQ5t3S0I";
+      const salt = "Nzoz+zS6trvJAorCoBzDzg==";
+      const iv = "Wm114nZi5cvnDjXQ";
       const iterations = 100000;
       const input = document.getElementById('password');
       const button = document.getElementById('unlock');
@@ -97,7 +97,7 @@
         try {
           const payload = await new Promise((resolve, reject) => {
             const request = new XMLHttpRequest();
-            request.open('GET', './payload.bin');
+            request.open('GET', './payload.bin?v=f56c6b6af56d');
             request.responseType = 'arraybuffer';
             request.onprogress = (event) => {
               if (event.lengthComputable) {
